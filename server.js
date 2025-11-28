@@ -1,26 +1,41 @@
-import express from 'express'
-import cors from 'cors'
-import 'dotenv/config'
-import connectDB from './configs/db.js'
-import userRouter from './routes/userRoutes.js'
-import resumeRouter from './routes/resumeRoutes.js'
-import aiRouter from './routes/aiRoutes.js'
+import express from 'express';
+import cors from 'cors';
+import 'dotenv/config';
+import connectDB from './configs/db.js';
+import userRouter from './routes/userRoutes.js';
+import resumeRouter from './routes/resumeRoutes.js';
+import aiRouter from './routes/aiRoutes.js';
 
-const app=express()
-const PORT=process.env.PORT || 3000
+const app = express();
+const PORT = process.env.PORT || 3000;
 
-app.use(express.json())
-app.use(cors())
+// ✅ Allow JSON request bodies
+app.use(express.json());
 
-await connectDB()
+// ✅ Configure CORS properly for your frontend (Vercel URL)
+app.use(cors({
+  origin: [
+    'https://ai-resume-builder-ten-nu.vercel.app', // your Vercel frontend URL
+    'http://localhost:5173' // allow local development too
+  ],
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  credentials: true,
+}));
 
-app.get('/',(req,res)=>{
-    res.send("Server is Live...")
-})
-app.use('/api/users',userRouter)
-app.use('/api/resumes',resumeRouter)
-app.use('/api/ai',aiRouter)
+// ✅ Connect to MongoDB
+await connectDB();
 
-app.listen(PORT,()=>{
-    console.log(`Server is running on port ${PORT}`)
-})
+// ✅ Root route check
+app.get('/', (req, res) => {
+  res.send('Server is Live...');
+});
+
+// ✅ API routes
+app.use('/api/users', userRouter);
+app.use('/api/resumes', resumeRouter);
+app.use('/api/ai', aiRouter);
+
+// ✅ Start the server
+app.listen(PORT, () => {
+  console.log(`✅ Server is running on port ${PORT}`);
+});
